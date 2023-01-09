@@ -39,8 +39,8 @@ class ExcelTable:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ExcelTable):
             return False
-        if hasattr(self, "title") and hasattr(other, "title"):
-            return self.title == other.title
+        if getattr(self, "title", None) or getattr(other, "title", None):
+            return getattr(self, "title", None) == getattr(other, "title", None)
         return self.df.equals(other.df)
 
     def to_excel_table(

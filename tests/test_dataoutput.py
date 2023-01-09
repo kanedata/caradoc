@@ -42,6 +42,17 @@ def test_dataoutput_duplicate():
     assert len(do.sheets["test"]) == 2
 
 
+def test_dataoutput_duplicate_df():
+    do = DataOutput()
+    df = pd.DataFrame({"a": [1, 2, 3]})
+    do.add_table(df, "test")
+    do.add_table(df, "test")
+    assert len(do.sheets["test"]) == 1
+
+    do.add_table(df, "test", title="test_again")
+    assert len(do.sheets["test"]) == 2
+
+
 def test_dataoutput_excel_true_index():
     do = DataOutput()
     df = pd.DataFrame({"a": [1, 2, 3]}, index=["A", "B", "C"])
@@ -71,8 +82,35 @@ def test_dataoutput_excel_summary_notes():
         )
 
 
+def test_dataoutput_excel_summary_notes_double():
+    do = DataOutput()
+    df = pd.DataFrame({"a": [1, 2, 3]})
+    do.add_table(df, "test", title="test", summary="summary", notes="notes")
+    do.add_table(df, "test", title="test_again", summary="summary", notes="notes")
+    with tempfile.TemporaryDirectory() as tmp:
+        do.write(tmp + "/test.xlsx")
+        # length should be:
+        # 1 row for title
+        # 1 row for summary
+        # 1 row gap
+        # 4 rows for data
+        # 1 row for notes
+        # x2 for second table
+        # 1 row gap between tables
+        # = 17
+        assert (
+            len(pd.read_excel(tmp + "/test.xlsx", sheet_name="test", header=None)) == 17
+        )
+
+
 def test_dataoutput_summary_notes():
     do = DataOutput()
     df = pd.DataFrame({"a": [1, 2, 3]})
     do.add_table(df, "test", title="test", summary="summary", notes="notes")
     assert do.sheets["test"][0].df.equals(df)
+
+
+def test_exceltable_not_equal():
+    df = pd.DataFrame({"a": [1, 2, 3]})
+    et = ExcelTable(df, title="test")
+    assert et != 1
