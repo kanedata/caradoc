@@ -31,6 +31,17 @@ def test_dataoutput_excel():
         )
 
 
+def test_dataoutput_duplicate():
+    do = DataOutput()
+    df = pd.DataFrame({"a": [1, 2, 3]})
+    do.add_table(df, "test", title="test")
+    do.add_table(df, "test", title="test")
+    assert len(do.sheets["test"]) == 1
+
+    do.add_table(df, "test", title="test_again")
+    assert len(do.sheets["test"]) == 2
+
+
 def test_dataoutput_excel_true_index():
     do = DataOutput()
     df = pd.DataFrame({"a": [1, 2, 3]}, index=["A", "B", "C"])

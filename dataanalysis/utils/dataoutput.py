@@ -36,6 +36,13 @@ class ExcelTable:
         self.summary: Optional[str] = summary
         self.notes: Optional[str] = notes
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ExcelTable):
+            return False
+        if hasattr(self, "title") and hasattr(other, "title"):
+            return self.title == other.title
+        return self.df.equals(other.df)
+
     def to_excel_table(
         self,
         writer: pd.ExcelWriter,
@@ -68,6 +75,7 @@ class ExcelTable:
             }
 
         # Get the xlsxwriter workbook and worksheet objects.
+        _ = writer.book
         worksheet = writer.sheets[sheet_name]
 
         # Get the dimensions of the dataframe.
@@ -120,7 +128,7 @@ class ExcelTable:
         for args in to_write:
             writer.sheets[sheet_name].write(*args)
 
-        return current_row
+        return current_row + 1
 
 
 class DataOutput:
@@ -139,6 +147,8 @@ class DataOutput:
     ) -> pd.DataFrame:
         """Adds a table to the DataOutput.
 
+        Note that adding a dataframe with the same title as an existing table will overwrite the existing table.
+
         # Parameters
 
         - `df`: pandas DataFrame or ExcelTable
@@ -148,13 +158,13 @@ class DataOutput:
         """
         if isinstance(df, pd.DataFrame):
             if isinstance(df.index, pd.RangeIndex):
-                self.sheets[sheet].append(ExcelTable(df, **kwargs))
+                et = ExcelTable(df, **kwargs)
             else:
-                self.sheets[sheet].append(ExcelTable(df.reset_index(), **kwargs))
-            return df
+                et = ExcelTable(df.reset_index(), **kwargs)
         else:
-            self.sheets[sheet].append(df)
-            return df.df
+            et = df
+        self.sheets[sheet] = [t for t in self.sheets[sheet] if t != et] + [et]
+        return et.df
 
     def write(self, file_name: str) -> None:
         """Writes the DataOutput to an Excel file.
