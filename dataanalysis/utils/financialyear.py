@@ -49,9 +49,13 @@ class FinancialYear:
         return self.year <= other.year
 
     def __eq__(self, other) -> bool:
+        if isinstance(other, int):
+            return self.year == other
         return str(self) == str(other)
 
     def __ne__(self, other) -> bool:
+        if isinstance(other, int):
+            return self.year != other
         return str(self) != str(other)
 
     def __gt__(self, other: Union["FinancialYear", int]) -> bool:

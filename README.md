@@ -145,3 +145,65 @@ output.write("test_file.xlsx")
 ```
 
 Output of `test_file.xlsx` will be an excel workbook with a sheet called "test_sheet". The sheet will have two tables, each table with a title and spacing between them.
+
+## Development
+
+### Run tests
+
+Tests can be run with `pytest`:
+
+```bash
+pip install -e . # install the package
+pytest tests
+```
+
+### Test coverage
+
+```bash
+coverage run -m pytest tests
+coverage html
+python -m http.server -d htmlcov
+```
+
+### Run typing checks
+
+```bash
+mypy dataanalysis tests
+```
+
+### Linting
+
+Black and isort should be run before committing any changes.
+
+```bash
+isort dataanalysis tests
+black dataanalysis tests
+```
+
+### Run all checks at once
+
+```sh
+black . && isort . && mypy dataanalysis tests && coverage run -m pytest tests && coverage html --fail-under=100
+```
+
+## Publish to pypi
+
+```bash
+python -m build
+twine upload dist/*
+git tag v<VERSION_NUMBER>
+git push origin v<VERSION_NUMBER>
+```
+
+## Install development version
+
+The development requirements are installed using `pip install -r dev-requirements.txt`.
+
+Any additional requirements for the module itself must be added to
+`install_requires` in `setup.py`. You should then generate a new 
+`requirements.txt` using using [`pip-tools`](https://github.com/jazzband/pip-tools) (`pip-compile`). You can then run `pip-sync` to install the 
+requirement.
+
+Any additional development requirements must be added to `dev-requirements.in`
+and then the `dev-requirements.txt` should be generated using `pip-compile dev-requirements.in`. You can then install the development requirements using
+`pip-sync dev-requirements.txt`.

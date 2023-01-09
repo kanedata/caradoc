@@ -1,5 +1,7 @@
 from datetime import date
 
+import pytest
+
 from dataanalysis import FinancialYear
 
 
@@ -20,14 +22,35 @@ def test_financialyear_str():
     assert str(FinancialYear("2020-21")) == "2020-21"
 
 
+def test_financialyear_repr():
+    assert repr(FinancialYear("2020-21")) == "2020-21"
+
+
+def test_financialyear_error():
+    with pytest.raises(ValueError):
+        FinancialYear("FLAM-FLIM")
+
+
 def test_financialyear_equality():
     assert FinancialYear("2020-21") < FinancialYear("2021-22")
     assert FinancialYear("2020-21") <= FinancialYear("2021-22")
     assert FinancialYear("2020-21") <= FinancialYear("2020-21")
     assert FinancialYear("2020-21") == FinancialYear("2020-21")
+    assert FinancialYear("2020-21") != FinancialYear("2021-22")
     assert FinancialYear("2020-21") >= FinancialYear("2020-21")
     assert FinancialYear("2025-26") >= FinancialYear("2020-21")
     assert FinancialYear("2025-26") > FinancialYear("2020-21")
+
+
+def test_financialyear_equality_int():
+    assert FinancialYear("2020-21") < 2021
+    assert FinancialYear("2020-21") <= 2021
+    assert FinancialYear("2020-21") <= 2020
+    assert FinancialYear("2020-21") == 2020
+    assert FinancialYear("2020-21") != 2021
+    assert FinancialYear("2020-21") >= 2020
+    assert FinancialYear("2025-26") >= 2020
+    assert FinancialYear("2025-26") > 2020
 
 
 def test_financialyear_addition():
@@ -45,6 +68,14 @@ def test_financialyear_in_dict():
 
 def test_financialyear_range():
     assert list(FinancialYear.range("2019-20", "2021-22")) == [
+        FinancialYear("2019-20"),
+        FinancialYear("2020-21"),
+        FinancialYear("2021-22"),
+    ]
+
+
+def test_financialyear_range_backwards():
+    assert list(FinancialYear.range("2021-22", "2019-20")) == [
         FinancialYear("2019-20"),
         FinancialYear("2020-21"),
         FinancialYear("2021-22"),
@@ -98,6 +129,11 @@ def test_financialyear_contains():
     assert d in FinancialYear("2020-21")
     assert d not in FinancialYear("2019-20")
     assert d not in FinancialYear("2019-20")
+
+
+def test_financialyear_contains_error():
+    with pytest.raises(NotImplementedError):
+        assert "Hello" in FinancialYear("2020-21")  # type: ignore
 
 
 def test_financialyear_int():
