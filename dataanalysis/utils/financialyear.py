@@ -94,6 +94,7 @@ class FinancialYear:
     def previous_n_years(
         self, n_previous: int = 2, n_future: int = 0
     ) -> List["FinancialYear"]:
+        """Returns a list of previous and future financial years."""
         return (
             [
                 FinancialYear.from_int(y, separator=self.separator)
@@ -110,6 +111,7 @@ class FinancialYear:
     def range(
         fy: Union["FinancialYear", str], other: Union["FinancialYear", str]
     ) -> List["FinancialYear"]:
+        """Returns a list of financial years between two financial years."""
         if isinstance(fy, str):
             fy = FinancialYear(fy)
         if isinstance(other, str):
