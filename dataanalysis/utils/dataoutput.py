@@ -68,7 +68,6 @@ class ExcelTable:
             }
 
         # Get the xlsxwriter workbook and worksheet objects.
-        workbook = writer.book
         worksheet = writer.sheets[sheet_name]
 
         # Get the dimensions of the dataframe.
