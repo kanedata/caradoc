@@ -19,6 +19,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: pip
     - name: Install dependencies
-      run: pip install -e .
+      run: |
+        pip install -e .
+        pip install hatch
     - name: Lint
       run: hatch run lint:all

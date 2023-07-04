@@ -1,6 +1,6 @@
-# data-analysis
+# Caradoc
 
-Python utilities for doing data analysis
+Python utilities for doing data analysis. Named for [Caradoc Vreichvras](https://en.wikipedia.org/wiki/Caradoc), a knight of the round table.
 
 Currently includes two utilities:
 
