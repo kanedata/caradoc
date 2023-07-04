@@ -11,7 +11,7 @@ Represents a Financial Year, from a string in the format "2020-21".
 ### Usage:
 
 ```python
-from dataanalysis import FinancialYear
+from caradoc import FinancialYear
 
 fy = FinancialYear("2020-21")
 
@@ -26,7 +26,7 @@ Create from date or year
 
 ```python
 from datetime import date
-from dataanalysis import FinancialYear
+from caradoc import FinancialYear
 
 fy = FinancialYear.from_date(date(2020, 1, 1))
 str(fy)  # "2019-20"
@@ -38,7 +38,7 @@ str(fy)  # "2020-21"
 Useful utilities:
 
 ```python
-from dataanalysis import FinancialYear
+from caradoc import FinancialYear
 
 fy = FinancialYear("2020-21")
 
@@ -88,7 +88,7 @@ Allows for specifying a title, summary and notes for the table.
 ### Usage
 
 ```python
-from dataanalysis import ExcelTable
+from caradoc import ExcelTable
 import pandas as pd
 
 df = pd.DataFrame({"alice": [1, 2, 3], "bob": [4, 5, 6]})
@@ -125,7 +125,7 @@ Represents a collection of ExcelTables to be written to an Excel file.
 ### Usage
 
 ```python
-from dataanalysis import DataOutput, ExcelTable
+from caradoc import DataOutput, ExcelTable
 import pandas as pd
 
 output = DataOutput()
@@ -153,37 +153,33 @@ Output of `test_file.xlsx` will be an excel workbook with a sheet called "test_s
 Tests can be run with `pytest`:
 
 ```bash
-pip install -e . # install the package
-pytest tests
+hatch run test
 ```
 
 ### Test coverage
 
 ```bash
-coverage run -m pytest tests
-coverage html
-python -m http.server -d htmlcov
+hatch run cov-html
 ```
 
 ### Run typing checks
 
 ```bash
-mypy dataanalysis tests
+hatch run lint:typing
 ```
 
 ### Linting
 
-Black and isort should be run before committing any changes.
+Black and ruff should be run before committing any changes.
 
 ```bash
-isort dataanalysis tests
-black dataanalysis tests
+hatch run lint:style
 ```
 
 ### Run all checks at once
 
 ```sh
-black . && isort . && mypy dataanalysis tests && coverage run -m pytest tests && coverage html --fail-under=100
+hatch run lint:all
 ```
 
 ## Publish to pypi

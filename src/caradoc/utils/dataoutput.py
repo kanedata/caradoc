@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import DefaultDict, Dict, List, Optional, Union
+from typing import Any, DefaultDict, Dict, List, Optional, Union
 
 import pandas as pd
 
@@ -7,7 +7,8 @@ import pandas as pd
 class ExcelTable:
     """Represents a table in an Excel workbook.
 
-    The table itself is a pandas DataFrame. The DataFrame index is not written to the Excel file.
+    The table itself is a pandas DataFrame. The DataFrame
+    index is not written to the Excel file.
 
     Allows for specifying a title, summary and notes for the table.
 
@@ -20,7 +21,8 @@ class ExcelTable:
 
     # Methods
 
-    - `to_excel_table()`: Writes just the datatable (`df`) to an Excel file as a Table (with filters)
+    - `to_excel_table()`: Writes just the datatable (`df`) to an Excel file
+        as a Table (with filters)
     - `to_excel()`: Writes the table to an Excel file as a Table, with the
         title and summary as a header and the notes as a footer."""
 
@@ -50,24 +52,15 @@ class ExcelTable:
         column_widths: Optional[Dict[str, int]] = None,
         max_col_width: int = 50,
         startrow: int = 0,
-        do_column_widths: bool = True,
-        **kwargs
+        do_column_widths: bool = True,  # noqa: FBT002, FBT001
+        **kwargs,
     ):
-        self.df.to_excel(
-            writer,
-            sheet_name=sheet_name,
-            startrow=startrow + 1,
-            header=False,
-            index=False,
-            **kwargs
-        )
+        self.df.to_excel(writer, sheet_name=sheet_name, startrow=startrow + 1, header=False, index=False, **kwargs)
 
         if column_widths is None:
             column_widths = {
                 k: v
-                for k, v in self.df.apply(
-                    lambda x: x.astype(str).str.len().max(), axis=0
-                )
+                for k, v in self.df.apply(lambda x: x.astype(str).str.len().max(), axis=0)
                 .apply(lambda x: min(x, max_col_width))
                 .to_dict()
                 .items()
@@ -86,9 +79,7 @@ class ExcelTable:
         column_settings = [{"header": column} for column in self.df.columns]
 
         # Add the Excel table structure. Pandas will add the data.
-        worksheet.add_table(
-            startrow, 0, max_row, max_col - 1, {"columns": column_settings}
-        )
+        worksheet.add_table(startrow, 0, max_row, max_col - 1, {"columns": column_settings})
 
         # Make the columns wider for clarity.
         if do_column_widths:
@@ -103,24 +94,34 @@ class ExcelTable:
                     ),
                 )
 
-    def to_excel(
-        self, writer: pd.ExcelWriter, sheet_name: str, current_row: int = 0, **kwargs
-    ):
+    def to_excel(self, writer: pd.ExcelWriter, sheet_name: str, current_row: int = 0, **kwargs):
         additional_rows = 0
-        to_write = []
+        to_write: list[tuple[int, int, str, Any] | tuple[int, int, str]] = []
+
+        # write the title
         if self.title is not None:
-            to_write.append((current_row, 0, self.title))
+            title_format = writer.book.add_format(  # type: ignore
+                {
+                    "bold": True,
+                    "font_size": 15,
+                }
+            )
+            to_write.append((current_row, 0, self.title, title_format))
             current_row += 1
             additional_rows = 1
+
+        # write the summary
         if self.summary is not None:
             to_write.append((current_row, 0, self.summary))
             current_row += 1
             additional_rows = 1
+
         current_row += additional_rows
-        self.to_excel_table(
-            writer, sheet_name=sheet_name, startrow=current_row, **kwargs
-        )
+
+        self.to_excel_table(writer, sheet_name=sheet_name, startrow=current_row, **kwargs)
         current_row += len(self.df) + 1
+
+        # write any notes
         if self.notes is not None:
             to_write.append((current_row, 0, self.notes))
             current_row += 1
@@ -140,21 +141,21 @@ class DataOutput:
     - `write()`: Writes the DataOutput to an Excel file"""
 
     def __init__(self) -> None:
-        self.sheets: DefaultDict[str, List[ExcelTable]] = defaultdict(lambda: list())
+        self.sheets: DefaultDict[str, List[ExcelTable]] = defaultdict(lambda: [])
 
-    def add_table(
-        self, df: Union[pd.DataFrame, ExcelTable], sheet: str, **kwargs
-    ) -> pd.DataFrame:
+    def add_table(self, df: Union[pd.DataFrame, ExcelTable], sheet: str, **kwargs) -> pd.DataFrame:
         """Adds a table to the DataOutput.
 
-        Note that adding a dataframe with the same title as an existing table will overwrite the existing table.
+        Note that adding a dataframe with the same title as an existing table will
+        overwrite the existing table.
 
         # Parameters
 
         - `df`: pandas DataFrame or ExcelTable
         - `sheet`: Name of the sheet to write the table to
-        - `kwargs`: Additional arguments to pass to ExcelTable constructor. Only used if `df` is a DataFrame.
-          The accepted arguments are `title`, `summary` and `notes` - all of which should be strings.
+        - `kwargs`: Additional arguments to pass to ExcelTable constructor.
+            Only used if `df` is a DataFrame. The accepted arguments are `title`,
+            `summary` and `notes` - all of which should be strings.
         """
         if isinstance(df, pd.DataFrame):
             if isinstance(df.index, pd.RangeIndex):
@@ -176,6 +177,4 @@ class DataOutput:
             for sheet_name, tables in self.sheets.items():
                 current_row = 0
                 for table in tables:
-                    current_row = table.to_excel(
-                        writer, sheet_name=sheet_name, current_row=current_row
-                    )
+                    current_row = table.to_excel(writer, sheet_name=sheet_name, current_row=current_row)

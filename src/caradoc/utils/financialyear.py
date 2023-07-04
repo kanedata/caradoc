@@ -3,6 +3,7 @@ from datetime import date
 from typing import List, Union
 
 FY_REGEX = re.compile(r"^(\d{4}) ?[\-\/] ?(\d{2,4})$")
+DEFAULT_END_MONTH = 3
 
 
 class FinancialYear:
@@ -11,11 +12,15 @@ class FinancialYear:
     def __init__(self, fy: str, separator: str = "-") -> None:
         match = FY_REGEX.match(fy)
         if not match:
-            raise ValueError("Financial year must be in the format YYYY-YY")
+            err = "Financial year must be in the format YYYY-YY"
+            raise ValueError(err)
         self.separator: str = separator
+
         self.year = int(match.group(1))
         self.end_year: int = self.year + 1
+
         self.fy = f"{self.year}{self.separator}{str(self.end_year)[-2:]}"
+
         self.start_date = date(self.year, 4, 1)
         self.end_date = date(self.end_year, 3, 31)
 
@@ -25,7 +30,7 @@ class FinancialYear:
 
     @classmethod
     def from_date(cls, d: date, separator: str = "-") -> "FinancialYear":
-        if d.month < 4:
+        if d.month <= DEFAULT_END_MONTH:
             return cls.from_int(d.year - 1, separator=separator)
         return cls.from_int(d.year, separator=separator)
 
@@ -68,9 +73,7 @@ class FinancialYear:
             return self.year >= other
         return self.year >= other.year
 
-    def __sub__(
-        self, other: Union["FinancialYear", int]
-    ) -> Union["FinancialYear", int]:
+    def __sub__(self, other: Union["FinancialYear", int]) -> Union["FinancialYear", int]:
         if isinstance(other, int):
             return FinancialYear.from_int(self.year - other, separator=self.separator)
         return self.year - other.year
@@ -80,7 +83,8 @@ class FinancialYear:
 
     def __contains__(self, d: date) -> bool:
         if not isinstance(d, date):
-            raise NotImplementedError("FinancialYear can only contain dates")
+            err = "FinancialYear can only contain dates"
+            raise NotImplementedError(err)
         return self.start_date <= d <= self.end_date
 
     def __int__(self) -> int:
@@ -95,15 +99,10 @@ class FinancialYear:
     def previous_year(self) -> "FinancialYear":
         return FinancialYear.from_int(self.year - 1, separator=self.separator)
 
-    def previous_n_years(
-        self, n_previous: int = 2, n_future: int = 0
-    ) -> List["FinancialYear"]:
+    def previous_n_years(self, n_previous: int = 2, n_future: int = 0) -> List["FinancialYear"]:
         """Returns a list of previous and future financial years."""
         return (
-            [
-                FinancialYear.from_int(y, separator=self.separator)
-                for y in range(self.year - n_previous, self.year)
-            ]
+            [FinancialYear.from_int(y, separator=self.separator) for y in range(self.year - n_previous, self.year)]
             + [self]
             + [
                 FinancialYear.from_int(y, separator=self.separator)
@@ -112,7 +111,7 @@ class FinancialYear:
         )
 
     @staticmethod
-    def range(
+    def range(  # noqa: A003
         fy: Union["FinancialYear", str], other: Union["FinancialYear", str]
     ) -> List["FinancialYear"]:
         """Returns a list of financial years between two financial years."""
@@ -121,11 +120,5 @@ class FinancialYear:
         if isinstance(other, str):
             other = FinancialYear(other)
         if fy.year > other.year:
-            return [
-                FinancialYear.from_int(y, separator=fy.separator)
-                for y in range(other.year, fy.year + 1)
-            ]
-        return [
-            FinancialYear.from_int(y, separator=fy.separator)
-            for y in range(fy.year, other.year + 1)
-        ]
+            return [FinancialYear.from_int(y, separator=fy.separator) for y in range(other.year, fy.year + 1)]
+        return [FinancialYear.from_int(y, separator=fy.separator) for y in range(fy.year, other.year + 1)]
