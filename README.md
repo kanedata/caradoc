@@ -185,21 +185,12 @@ hatch run lint:all
 ## Publish to pypi
 
 ```bash
-python -m build
-twine upload dist/*
-git tag v<VERSION_NUMBER>
-git push origin v<VERSION_NUMBER>
+hatch build
+hatch publish
 ```
 
 ## Install development version
 
-The development requirements are installed using `pip install -r dev-requirements.txt`.
+Caradoc uses the [`hatch`](https://hatch.pypa.io/latest/) project manager. Install hatch using `pip install hatch`.
 
-Any additional requirements for the module itself must be added to
-`install_requires` in `setup.py`. You should then generate a new 
-`requirements.txt` using using [`pip-tools`](https://github.com/jazzband/pip-tools) (`pip-compile`). You can then run `pip-sync` to install the 
-requirement.
-
-Any additional development requirements must be added to `dev-requirements.in`
-and then the `dev-requirements.txt` should be generated using `pip-compile dev-requirements.in`. You can then install the development requirements using
-`pip-sync dev-requirements.txt`.
+Hatch will manage the requirements for you. Any additional dependencies should be added to `pyproject.toml`.
