@@ -49,10 +49,11 @@ class ExcelTable:
         self,
         writer: pd.ExcelWriter,
         sheet_name: str,
-        column_widths: dict[str, int] | None = None,
+        column_widths: Optional[dict[str, int]] = None,  # noqa: UP007
         max_col_width: int = 50,
         startrow: int = 0,
-        do_column_widths: bool = True,  # noqa: FBT002, FBT001
+        *,
+        do_column_widths: bool = True,
         **kwargs,
     ):
         self.df.to_excel(writer, sheet_name=sheet_name, startrow=startrow + 1, header=False, index=False, **kwargs)
