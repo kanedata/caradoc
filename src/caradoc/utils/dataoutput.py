@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
@@ -29,14 +29,14 @@ class ExcelTable:
     def __init__(
         self,
         df: pd.DataFrame,
-        title: Optional[str] = None,
-        summary: Optional[str] = None,
-        notes: Optional[str] = None,
+        title: str | None = None,
+        summary: str | None = None,
+        notes: str | None = None,
     ):
         self.df: pd.DataFrame = df
-        self.title: Optional[str] = title
-        self.summary: Optional[str] = summary
-        self.notes: Optional[str] = notes
+        self.title: str | None = title
+        self.summary: str | None = summary
+        self.notes: str | None = notes
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ExcelTable):
@@ -49,7 +49,7 @@ class ExcelTable:
         self,
         writer: pd.ExcelWriter,
         sheet_name: str,
-        column_widths: Optional[Dict[str, int]] = None,
+        column_widths: dict[str, int] | None = None,
         max_col_width: int = 50,
         startrow: int = 0,
         do_column_widths: bool = True,  # noqa: FBT002, FBT001
@@ -141,9 +141,9 @@ class DataOutput:
     - `write()`: Writes the DataOutput to an Excel file"""
 
     def __init__(self) -> None:
-        self.sheets: DefaultDict[str, List[ExcelTable]] = defaultdict(lambda: [])
+        self.sheets: defaultdict[str, list[ExcelTable]] = defaultdict(lambda: [])
 
-    def add_table(self, df: Union[pd.DataFrame, ExcelTable], sheet: str, **kwargs) -> pd.DataFrame:
+    def add_table(self, df: pd.DataFrame | ExcelTable, sheet: str, **kwargs) -> pd.DataFrame:
         """Adds a table to the DataOutput.
 
         Note that adding a dataframe with the same title as an existing table will

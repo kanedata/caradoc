@@ -1,6 +1,6 @@
 import re
 from datetime import date
-from typing import List, Union
+from typing import Union
 
 FY_REGEX = re.compile(r"^(\d{4}) ?[\-\/] ?(\d{2,4})$")
 DEFAULT_END_MONTH = 3
@@ -99,7 +99,7 @@ class FinancialYear:
     def previous_year(self) -> "FinancialYear":
         return FinancialYear.from_int(self.year - 1, separator=self.separator)
 
-    def previous_n_years(self, n_previous: int = 2, n_future: int = 0) -> List["FinancialYear"]:
+    def previous_n_years(self, n_previous: int = 2, n_future: int = 0) -> list["FinancialYear"]:
         """Returns a list of previous and future financial years."""
         return (
             [FinancialYear.from_int(y, separator=self.separator) for y in range(self.year - n_previous, self.year)]
@@ -111,9 +111,7 @@ class FinancialYear:
         )
 
     @staticmethod
-    def range(  # noqa: A003
-        fy: Union["FinancialYear", str], other: Union["FinancialYear", str]
-    ) -> List["FinancialYear"]:
+    def range(fy: Union["FinancialYear", str], other: Union["FinancialYear", str]) -> list["FinancialYear"]:
         """Returns a list of financial years between two financial years."""
         if isinstance(fy, str):
             fy = FinancialYear(fy)

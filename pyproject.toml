@@ -7,28 +7,22 @@ name = "caradoc"
 dynamic = ["version"]
 description = 'A suite of tools to help with data analysis in python.'
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 license = "MIT"
 keywords = []
-authors = [
-  { name = "David Kane", email = "david@dkane.net" },
-]
+authors = [{ name = "David Kane", email = "david@dkane.net" }]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = [
-  "pandas",
-  "xlsxwriter",
-  "openpyxl",
-]
+dependencies = ["pandas", "xlsxwriter", "openpyxl"]
 
 [project.urls]
 Documentation = "https://github.com/kanedata/caradoc#readme"
@@ -39,21 +33,12 @@ Source = "https://github.com/kanedata/caradoc"
 path = "src/caradoc/__about__.py"
 
 [tool.hatch.envs.default]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-]
+dependencies = ["coverage[toml]>=6.5", "pytest"]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-]
-cov = [
-  "test-cov",
-  "cov-report",
-]
+cov-report = ["- coverage combine", "coverage report"]
+cov = ["test-cov", "cov-report"]
 cov-html = [
   "test-cov",
   "- coverage combine",
@@ -62,41 +47,21 @@ cov-html = [
 ]
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
 [tool.hatch.envs.lint]
 detached = true
-dependencies = [
-  "black>=23.1.0",
-  "mypy>=1.0.0",
-  "ruff>=0.0.243",
-  "pandas-stubs",
-  "types-openpyxl",
-]
+dependencies = ["mypy>=1.0.0", "ruff>=0.7.2", "pandas-stubs", "types-openpyxl"]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:src/caradoc}"
-style = [
-  "ruff {args:.}",
-  "black --check --diff {args:.}",
-]
-fmt = [
-  "black {args:.}",
-  "ruff --fix {args:.}",
-  "style",
-]
-all = [
-  "style",
-  "typing",
-]
-
-[tool.black]
-target-version = ["py37"]
-line-length = 120
-skip-string-normalization = true
+style = ["ruff check {args:.}", "ruff format --check --diff {args:.}"]
+fmt = ["ruff format {args:.}", "ruff check --fix {args:.}", "style"]
+all = ["style", "typing"]
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py310"
 line-length = 120
+[tool.ruff.lint]
 select = [
   "A",
   "ARG",
@@ -130,22 +95,29 @@ ignore = [
   # Allow boolean positional values in function calls, like `dict.get(... True)`
   "FBT003",
   # Ignore checks for possible passwords
-  "S105", "S106", "S107",
+  "S105",
+  "S106",
+  "S107",
   # Ignore complexity
-  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "ISC001",
 ]
 unfixable = [
   # Don't touch unused imports
   "F401",
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["caradoc"]
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Tests can use magic values, assertions, and relative imports
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 
@@ -153,17 +125,11 @@ ban-relative-imports = "all"
 source_pkgs = ["caradoc", "tests"]
 branch = true
 parallel = true
-omit = [
-  "src/caradoc/__about__.py",
-]
+omit = ["src/caradoc/__about__.py"]
 
 [tool.coverage.paths]
 caradoc = ["src/caradoc", "*/caradoc/src/caradoc"]
 tests = ["tests", "*/caradoc/tests"]
 
 [tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
