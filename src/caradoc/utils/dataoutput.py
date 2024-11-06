@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import pandas as pd
 
@@ -97,7 +97,7 @@ class ExcelTable:
 
     def to_excel(self, writer: pd.ExcelWriter, sheet_name: str, current_row: int = 0, **kwargs):
         additional_rows = 0
-        to_write: list[tuple[int, int, str, Any] | tuple[int, int, str]] = []
+        to_write: list[Union[tuple[int, int, str, Any], tuple[int, int, str]]] = []  # noqa: UP007
 
         # write the title
         if self.title is not None:
@@ -144,7 +144,7 @@ class DataOutput:
     def __init__(self) -> None:
         self.sheets: defaultdict[str, list[ExcelTable]] = defaultdict(lambda: [])
 
-    def add_table(self, df: pd.DataFrame | ExcelTable, sheet: str, **kwargs) -> pd.DataFrame:
+    def add_table(self, df: Union[pd.DataFrame, ExcelTable], sheet: str, **kwargs) -> pd.DataFrame:  # noqa: UP007
         """Adds a table to the DataOutput.
 
         Note that adding a dataframe with the same title as an existing table will
