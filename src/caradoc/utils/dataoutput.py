@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -29,14 +29,14 @@ class ExcelTable:
     def __init__(
         self,
         df: pd.DataFrame,
-        title: str | None = None,
-        summary: str | None = None,
-        notes: str | None = None,
+        title: Optional[str] = None,  # noqa: UP007
+        summary: Optional[str] = None,  # noqa: UP007
+        notes: Optional[str] = None,  # noqa: UP007
     ):
         self.df: pd.DataFrame = df
-        self.title: str | None = title
-        self.summary: str | None = summary
-        self.notes: str | None = notes
+        self.title: Optional[str] = title  # noqa: UP007
+        self.summary: Optional[str] = summary  # noqa: UP007
+        self.notes: Optional[str] = notes  # noqa: UP007
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ExcelTable):
