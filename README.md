@@ -119,8 +119,8 @@ Represents a collection of ExcelTables to be written to an Excel file.
 
 ### Methods
 
-- `add_table()`: Adds a table to the DataOutput
-- `write()`: Writes the DataOutput to an Excel file
+- `add_table(df, sheet_name)`: Adds a table to the DataOutput
+- `write(filename)`: Writes the DataOutput to an Excel file
 
 ### Usage
 
@@ -136,10 +136,10 @@ table1 = ExcelTable(
     title="Test Table"
 )
 
-output.add_table("test_sheet", table1)
+output.add_table(table1, "test_sheet")
 
 df2 = pd.DataFrame({"alice": [1, 2, 3], "bob": [4, 5, 6]})
-output.add_table("test_sheet", df2, title="Test Table 2")
+output.add_table(df2, "test_sheet", title="Test Table 2")
 
 output.write("test_file.xlsx")
 ```
