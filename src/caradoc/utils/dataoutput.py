@@ -1,7 +1,10 @@
+import re
 from collections import defaultdict
 from typing import Any, Optional, Union
 
 import pandas as pd
+from xlsxwriter import Workbook
+from xlsxwriter.worksheet import Worksheet
 
 
 class ExcelTable:
@@ -56,12 +59,21 @@ class ExcelTable:
         do_column_widths: bool = True,
         **kwargs,
     ):
-        self.df.to_excel(writer, sheet_name=sheet_name, startrow=startrow + 1, header=False, index=False, **kwargs)
+        self.df.to_excel(
+            writer,
+            sheet_name=sheet_name,
+            startrow=startrow + 1,
+            header=False,
+            index=False,
+            **kwargs,
+        )
 
         if column_widths is None:
             column_widths = {
                 k: v
-                for k, v in self.df.apply(lambda x: x.astype(str).str.len().max(), axis=0)
+                for k, v in self.df.apply(
+                    lambda x: x.astype(str).str.len().max(), axis=0
+                )
                 .apply(lambda x: min(x, max_col_width))
                 .to_dict()
                 .items()
@@ -69,8 +81,11 @@ class ExcelTable:
             }
 
         # Get the xlsxwriter workbook and worksheet objects.
-        _ = writer.book
-        worksheet = writer.sheets[sheet_name]
+        if not isinstance(writer.book, Workbook):
+            msg = "Expected a xlsxwriter Workbook"
+            raise TypeError(msg)
+        _: Workbook = writer.book
+        worksheet: Worksheet = writer.sheets[sheet_name]
 
         # Get the dimensions of the dataframe.
         (max_row, max_col) = self.df.shape
@@ -80,7 +95,9 @@ class ExcelTable:
         column_settings = [{"header": column} for column in self.df.columns]
 
         # Add the Excel table structure. Pandas will add the data.
-        worksheet.add_table(startrow, 0, max_row, max_col - 1, {"columns": column_settings})
+        worksheet.add_table(
+            startrow, 0, max_row, max_col - 1, {"columns": column_settings}
+        )
 
         # Make the columns wider for clarity.
         if do_column_widths:
@@ -95,7 +112,9 @@ class ExcelTable:
                     ),
                 )
 
-    def to_excel(self, writer: pd.ExcelWriter, sheet_name: str, current_row: int = 0, **kwargs):
+    def to_excel(
+        self, writer: pd.ExcelWriter, sheet_name: str, current_row: int = 0, **kwargs
+    ):
         additional_rows = 0
         to_write: list[Union[tuple[int, int, str, Any], tuple[int, int, str]]] = []  # noqa: UP007
 
@@ -119,7 +138,9 @@ class ExcelTable:
 
         current_row += additional_rows
 
-        self.to_excel_table(writer, sheet_name=sheet_name, startrow=current_row, **kwargs)
+        self.to_excel_table(
+            writer, sheet_name=sheet_name, startrow=current_row, **kwargs
+        )
         current_row += len(self.df) + 1
 
         # write any notes
@@ -144,7 +165,12 @@ class DataOutput:
     def __init__(self) -> None:
         self.sheets: defaultdict[str, list[ExcelTable]] = defaultdict(lambda: [])
 
-    def add_table(self, df: Union[pd.DataFrame, ExcelTable], sheet: str, **kwargs) -> pd.DataFrame:  # noqa: UP007
+    def add_table(
+        self,
+        df: Union[pd.DataFrame, ExcelTable],  # noqa: UP007
+        sheet: str,
+        **kwargs,
+    ) -> pd.DataFrame:
         """Adds a table to the DataOutput.
 
         Note that adding a dataframe with the same title as an existing table will
@@ -168,14 +194,41 @@ class DataOutput:
         self.sheets[sheet] = [t for t in self.sheets[sheet] if t != et] + [et]
         return et.df
 
+    def get_sheet_names(self) -> dict[str, str]:
+        """Returns a dictionary of sheet names and their titles."""
+        sheet_names = {}
+        for sheet in self.sheets:
+            sheet_name = re.sub(r"['\*/:\?\[\]\\\/]+", "", sheet)[
+                :31
+            ]  # Excel sheet names must be <= 31 characters
+            if len(sheet_name) == 0:
+                sheet_name = "Sheet"
+            if sheet_name in sheet_names.values():
+                # If the sheet name already exists, append a number to make it unique
+                count = 1
+                suffix = f"_{count:.0f}"
+                truncate_length = 31 - len(suffix)
+                while f"{sheet_name[:truncate_length]}{suffix}" in sheet_names.values():
+                    count += 1
+                    suffix = f"_{count:.0f}"
+                    truncate_length = 31 - len(suffix)
+                sheet_name = f"{sheet_name[:truncate_length]}{suffix}"
+            sheet_names[sheet] = sheet_name
+        return sheet_names
+
     def write(self, file_name: str) -> None:
         """Writes the DataOutput to an Excel file.
 
         # Parameters
 
         - `file_name`: Name of the file to write to"""
-        with pd.ExcelWriter(file_name, engine="auto") as writer:
+        sheet_names = self.get_sheet_names()
+        with pd.ExcelWriter(file_name, engine="xlsxwriter") as writer:
             for sheet_name, tables in self.sheets.items():
                 current_row = 0
                 for table in tables:
-                    current_row = table.to_excel(writer, sheet_name=sheet_name, current_row=current_row)
+                    current_row = table.to_excel(
+                        writer,
+                        sheet_name=sheet_names[sheet_name],
+                        current_row=current_row,
+                    )

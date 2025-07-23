@@ -83,7 +83,9 @@ def test_financialyear_range_backwards():
 
 
 def test_financialyear_range_fy():
-    assert list(FinancialYear.range(FinancialYear("2019-20"), FinancialYear("2021-22"))) == [
+    assert list(
+        FinancialYear.range(FinancialYear("2019-20"), FinancialYear("2021-22"))
+    ) == [
         FinancialYear("2019-20"),
         FinancialYear("2020-21"),
         FinancialYear("2021-22"),

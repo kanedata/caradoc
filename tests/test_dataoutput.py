@@ -26,7 +26,63 @@ def test_dataoutput_excel():
     do.add_table(df, "test", title="test")
     with tempfile.TemporaryDirectory() as tmp:
         do.write(tmp + "/test.xlsx")
-        assert pd.read_excel(tmp + "/test.xlsx", sheet_name="test", skiprows=2).equals(df)
+        assert pd.read_excel(tmp + "/test.xlsx", sheet_name="test", skiprows=2).equals(
+            df
+        )
+
+
+def test_dataoutput_excel_duplicate_sheet_name_long():
+    long_sheet_name = (
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod "
+        "tempor incididunt ut labore et dolore magna aliqua"
+    )
+    valid_sheet_name_1 = "Lorem ipsum dolor sit amet, con"
+    valid_sheet_name_2 = "Lorem ipsum dolor sit amet, c_1"
+    do = DataOutput()
+    df = pd.DataFrame({"a": [1, 2, 3]})
+    do.add_table(df, long_sheet_name, title="test")
+    do.add_table(df, long_sheet_name + "AB", title="test")
+    with tempfile.TemporaryDirectory() as tmp:
+        do.write(tmp + "/test.xlsx")
+        assert pd.read_excel(
+            tmp + "/test.xlsx", sheet_name=valid_sheet_name_1, skiprows=2
+        ).equals(df)
+        assert pd.read_excel(
+            tmp + "/test.xlsx", sheet_name=valid_sheet_name_2, skiprows=2
+        ).equals(df)
+
+
+def test_dataoutput_excel_long_sheet_name():
+    long_sheet_name = (
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod "
+        "tempor incididunt ut labore et dolore magna aliqua"
+    )
+    # Excel sheet names are limited to 31 characters
+    valid_sheet_name = "Lorem ipsum dolor sit amet, con"
+    do = DataOutput()
+    df = pd.DataFrame({"a": [1, 2, 3]})
+    do.add_table(df, long_sheet_name, title="test")
+    with tempfile.TemporaryDirectory() as tmp:
+        do.write(tmp + "/test.xlsx")
+        assert pd.read_excel(
+            tmp + "/test.xlsx", sheet_name=valid_sheet_name, skiprows=2
+        ).equals(df)
+
+
+def test_dataoutput_excel_sheet_name_bad_characters():
+    long_sheet_name = (
+        "Lorem ipsum dolor sit amet, '*/:?[\\]$/\\*{]consectetur adipiscing elit, "
+        "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
+    )
+    valid_sheet_name = "Lorem ipsum dolor sit amet, ${c"
+    do = DataOutput()
+    df = pd.DataFrame({"a": [1, 2, 3]})
+    do.add_table(df, long_sheet_name, title="test")
+    with tempfile.TemporaryDirectory() as tmp:
+        do.write(tmp + "/test.xlsx")
+        assert pd.read_excel(
+            tmp + "/test.xlsx", sheet_name=valid_sheet_name, skiprows=2
+        ).equals(df)
 
 
 def test_dataoutput_duplicate():
@@ -57,7 +113,9 @@ def test_dataoutput_excel_true_index():
     do.add_table(df, "test", title="test")
     with tempfile.TemporaryDirectory() as tmp:
         do.write(tmp + "/test.xlsx")
-        assert pd.read_excel(tmp + "/test.xlsx", sheet_name="test", skiprows=2).equals(df.reset_index())
+        assert pd.read_excel(tmp + "/test.xlsx", sheet_name="test", skiprows=2).equals(
+            df.reset_index()
+        )
 
 
 def test_dataoutput_excel_column_widths():
@@ -92,7 +150,9 @@ def test_dataoutput_excel_summary_notes():
         # 4 rows for data
         # 1 row for notes
         # = 8
-        assert len(pd.read_excel(tmp + "/test.xlsx", sheet_name="test", header=None)) == 8
+        assert (
+            len(pd.read_excel(tmp + "/test.xlsx", sheet_name="test", header=None)) == 8
+        )
 
 
 def test_dataoutput_excel_summary_notes_double():
@@ -111,7 +171,9 @@ def test_dataoutput_excel_summary_notes_double():
         # x2 for second table
         # 1 row gap between tables
         # = 17
-        assert len(pd.read_excel(tmp + "/test.xlsx", sheet_name="test", header=None)) == 17
+        assert (
+            len(pd.read_excel(tmp + "/test.xlsx", sheet_name="test", header=None)) == 17
+        )
 
 
 def test_dataoutput_summary_notes():

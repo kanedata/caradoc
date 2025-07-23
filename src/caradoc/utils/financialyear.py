@@ -26,7 +26,7 @@ class FinancialYear:
 
     @classmethod
     def from_int(cls, year_int: int, separator: str = "-") -> "FinancialYear":
-        return cls(f"{year_int}-{str(year_int+1)[-2:]}", separator=separator)
+        return cls(f"{year_int}-{str(year_int + 1)[-2:]}", separator=separator)
 
     @classmethod
     def from_date(cls, d: date, separator: str = "-") -> "FinancialYear":
@@ -73,7 +73,9 @@ class FinancialYear:
             return self.year >= other
         return self.year >= other.year
 
-    def __sub__(self, other: Union["FinancialYear", int]) -> Union["FinancialYear", int]:
+    def __sub__(
+        self, other: Union["FinancialYear", int]
+    ) -> Union["FinancialYear", int]:
         if isinstance(other, int):
             return FinancialYear.from_int(self.year - other, separator=self.separator)
         return self.year - other.year
@@ -99,10 +101,15 @@ class FinancialYear:
     def previous_year(self) -> "FinancialYear":
         return FinancialYear.from_int(self.year - 1, separator=self.separator)
 
-    def previous_n_years(self, n_previous: int = 2, n_future: int = 0) -> list["FinancialYear"]:
+    def previous_n_years(
+        self, n_previous: int = 2, n_future: int = 0
+    ) -> list["FinancialYear"]:
         """Returns a list of previous and future financial years."""
         return (
-            [FinancialYear.from_int(y, separator=self.separator) for y in range(self.year - n_previous, self.year)]
+            [
+                FinancialYear.from_int(y, separator=self.separator)
+                for y in range(self.year - n_previous, self.year)
+            ]
             + [self]
             + [
                 FinancialYear.from_int(y, separator=self.separator)
@@ -111,12 +118,20 @@ class FinancialYear:
         )
 
     @staticmethod
-    def range(fy: Union["FinancialYear", str], other: Union["FinancialYear", str]) -> list["FinancialYear"]:
+    def range(
+        fy: Union["FinancialYear", str], other: Union["FinancialYear", str]
+    ) -> list["FinancialYear"]:
         """Returns a list of financial years between two financial years."""
         if isinstance(fy, str):
             fy = FinancialYear(fy)
         if isinstance(other, str):
             other = FinancialYear(other)
         if fy.year > other.year:
-            return [FinancialYear.from_int(y, separator=fy.separator) for y in range(other.year, fy.year + 1)]
-        return [FinancialYear.from_int(y, separator=fy.separator) for y in range(fy.year, other.year + 1)]
+            return [
+                FinancialYear.from_int(y, separator=fy.separator)
+                for y in range(other.year, fy.year + 1)
+            ]
+        return [
+            FinancialYear.from_int(y, separator=fy.separator)
+            for y in range(fy.year, other.year + 1)
+        ]

@@ -63,7 +63,6 @@ d in FinancialYear("2020-22")  # False
 
 Currently years are hardcoded to end on 31st March but this will be changed.
 
-
 ## `ExcelTable`
 
 Represents a table in an Excel workbook.
@@ -83,7 +82,7 @@ Allows for specifying a title, summary and notes for the table.
 
 - `to_excel_table()`: Writes just the datatable (`df`) to an Excel file as a Table (with filters)
 - `to_excel()`: Writes the table to an Excel file as a Table, with the
-    title and summary as a header and the notes as a footer.
+  title and summary as a header and the notes as a footer.
 
 ### Usage
 
@@ -96,20 +95,20 @@ et = ExcelTable(
     df,
     title="Test Table"
 )
-with pd.ExcelWriter("test_file.xlsx", engine="auto") as writer:
+with pd.ExcelWriter("test_file.xlsx", engine="xlsxwriter") as writer:
     et.to_excel(writer, "test_sheet")
 ```
 
 Output looks something like:
 
-|   | A          | B   |
-|---|------------|-----|
-| 1 | Test Table |     |
-| 2 |            |     |
-| 3 | Alice      | Bob |
-| 4 | 1          |   4 |
-| 5 | 2          |   5 |
-| 6 | 3          |   6 |
+|     | A          | B   |
+| --- | ---------- | --- |
+| 1   | Test Table |     |
+| 2   |            |     |
+| 3   | Alice      | Bob |
+| 4   | 1          | 4   |
+| 5   | 2          | 5   |
+| 6   | 3          | 6   |
 
 You can also include a summary (underneath the title) and notes (underneath the table) using `summary=` and `notes=`
 
