@@ -52,7 +52,7 @@ python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
 [tool.hatch.envs.lint]
 detached = true
-dependencies = ["mypy>=1.0.0", "ruff>=0.7.2", "pandas-stubs", "types-openpyxl"]
+dependencies = ["mypy>=1.0.0", "ruff>=0.11.0", "pandas-stubs", "types-openpyxl"]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:src/caradoc}"
 style = ["ruff check {args:.}", "ruff format --check --diff {args:.}"]

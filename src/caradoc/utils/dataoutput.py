@@ -1,10 +1,10 @@
 import re
 from collections import defaultdict
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import pandas as pd
-from xlsxwriter import Workbook
-from xlsxwriter.worksheet import Worksheet
+from xlsxwriter import Workbook  # type: ignore
+from xlsxwriter.worksheet import Worksheet  # type: ignore
 
 
 class ExcelTable:
@@ -32,14 +32,14 @@ class ExcelTable:
     def __init__(
         self,
         df: pd.DataFrame,
-        title: Optional[str] = None,  # noqa: UP007
-        summary: Optional[str] = None,  # noqa: UP007
-        notes: Optional[str] = None,  # noqa: UP007
+        title: str | None = None,
+        summary: str | None = None,
+        notes: str | None = None,
     ):
         self.df: pd.DataFrame = df
-        self.title: Optional[str] = title  # noqa: UP007
-        self.summary: Optional[str] = summary  # noqa: UP007
-        self.notes: Optional[str] = notes  # noqa: UP007
+        self.title: str | None = title
+        self.summary: str | None = summary
+        self.notes: str | None = notes
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ExcelTable):
@@ -48,11 +48,16 @@ class ExcelTable:
             return getattr(self, "title", None) == getattr(other, "title", None)
         return self.df.equals(other.df)
 
+    def __hash__(self) -> int:
+        if getattr(self, "title", None):
+            return hash(self.title)
+        return hash(self.df.to_dict())
+
     def to_excel_table(
         self,
         writer: pd.ExcelWriter,
         sheet_name: str,
-        column_widths: Optional[dict[str, int]] = None,  # noqa: UP007
+        column_widths: dict[str, int] | None = None,
         max_col_width: int = 50,
         startrow: int = 0,
         *,
@@ -196,7 +201,7 @@ class DataOutput:
 
     def get_sheet_names(self) -> dict[str, str]:
         """Returns a dictionary of sheet names and their titles."""
-        sheet_names = {}
+        sheet_names: dict[str, str] = {}
         for sheet in self.sheets:
             sheet_name = re.sub(r"['\*/:\?\[\]\\\/]+", "", sheet)[
                 :31
